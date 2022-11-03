@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PipeOptimization
 {
     public class TaskDefinition
     {
-        private static double alpha = 1d;
+        private double alpha = 1d;
         private static double[] u = {
             15.19d,         //1
             8.18d,          //2
@@ -75,23 +76,23 @@ namespace PipeOptimization
         {
         }
 
-        private static double P(double l)
+        private double P(double l)
         {
             return 5d - l / 60d;
         }
 
         //func01 = lambda t, a: t
-        private static double Func_0(double a, double t)
+        private double Func_0(double a, double t)
         {
             return t;
         }
 
-        private static double X7(double l)
+        private double X7(double l)
         {
             return 373d + 1127d * (Func_0(l / 180d, alpha));
         }
 
-        private static double V(double l, double[] x)
+        private double V(double l, double[] x)
         {
             var G = 1750d;
             var Gs = 3500d;
@@ -103,12 +104,12 @@ namespace PipeOptimization
             return 509.209 * P(l) * (sum / (X7(l) * (G + Gs * sum / m[0])));
         }
 
-        private static double R(int i, double x7) {
+        private double R(int i, double x7) {
             var deg = 23d - E[i - 1] / x7;
             return u[i - 1] * Math.Exp(deg);
         }
 
-        public static double[] Task(double l, double[] x)
+        public double[] Task(double l, double[] x)
         {
             var x7calc = X7(l);
             var vl = V(l, x);
@@ -134,7 +135,7 @@ namespace PipeOptimization
             return new double[] { dx1, dx2, dx3, dx4, dx5, dx6 };
         }
 
-        public static double[] Quality(double[,] x) {
+        public double[] Quality(double[,] x) {
             var size = x.GetLength(1);
             var result = new double[size];
             for (int i = 0; i < size; i++)
@@ -152,7 +153,7 @@ namespace PipeOptimization
 
         public double iteration(double value) {
             this.alpha = value;
-            var rungeResult = RungeCutt.RungeKutt(l0, x0, l1, n);
+            var rungeResult = RungeKutt(l0, x0, l1, n);
             var x_quality = Quality(rungeResult.Item2);
             var result = x_quality.Max();
             return result;
@@ -190,12 +191,12 @@ namespace PipeOptimization
             return (a + b) / 2d;
         }
 
-        public void solve_task(int steps, double left_border, double right_border, double threshold, custom_func01) {
+        public void solve_task(int steps, double left_border, double right_border, double threshold, Chart chart ) {
             //global n, func01, alpha
             //n = steps
             //func01 = custom_func01
             var alpha = bisection(left_border, right_border, threshold);
-            var rungeResult = RungeCutt.RungeKutt(l0, x0, l1, n);
+            var rungeResult = RungeKutt(l0, x0, l1, n);
             var x_quality = Quality(rungeResult.Item2);
 
             var res = 0d;
@@ -220,6 +221,62 @@ namespace PipeOptimization
             //axis[1].set_title("quality")
 
             //plt.show();
+        }
+
+        public (double[], double[,]) RungeKutt(double x0, double[] y0, double x1, int n)
+        {
+            var h = (x1 - x0) / n;
+            var ycount = y0.Length;
+
+            var x = new double[n + 1];
+            x[0] = x0;
+
+            //var y = [[Decimal(0)] * ycount for i in range(n + 1)];
+            var y = new List<double[]>();
+
+            for (int i = 0; i < ycount; i++)
+            {
+                for (int j = 0; j < ycount; j++)
+                {
+                    //y[0] = y0;
+                }
             }
+
+            var k1 = new double[ycount];
+            var k2 = new double[ycount];
+            var k3 = new double[ycount];
+            var k4 = new double[ycount];
+
+            for (int i = 0; i < n; i++)
+            {
+
+                k1 = Utils.ScalarVectorMultiplication(h, Task(x[i], y[i]));
+
+                k2 = Utils.ScalarVectorMultiplication(h, Task(x[i] + 0.5d * h, Utils.ScalarVectorSum(y[i], Utils.ScalarVectorMultiplication(0.5d, k1))));
+
+                k3 = Utils.ScalarVectorMultiplication(h, Task(x[i] + 0.5d * h, Utils.ScalarVectorSum(y[i], Utils.ScalarVectorMultiplication(0.5d, k2))));
+
+                k4 = Utils.ScalarVectorMultiplication(h, Task(x[i] + h, Utils.ScalarVectorSum(y[i], k3)));
+
+                y[i + 1] = Utils.ScalarVectorSum(
+                    y[i],
+                    Utils.ScalarVectorMultiplication(
+                        1.0d / 6.0d,
+                        Utils.ScalarVectorSum(
+                            k1,
+                            Utils.ScalarVectorSum(
+                                Utils.ScalarVectorMultiplication(2d, k2),
+                                Utils.ScalarVectorSum(
+                                    Utils.ScalarVectorMultiplication(2d, k3),
+                                    k4)
+                                )
+                            )
+                        )
+                    );
+
+                x[i + 1] = x[i] + h;
+            }
+            return (x, Utils.ListOfArraysToMatrix(y));
+        }
     }
 }

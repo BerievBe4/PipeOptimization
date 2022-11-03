@@ -23,7 +23,7 @@ namespace PipeOptimization
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var steps = Double.Parse(textBox1.Text);
+            var steps = Int32.Parse(textBox1.Text);
 
             var left_border = Double.Parse(textBox2.Text);
             var right_border = Double.Parse(textBox3.Text);
@@ -31,9 +31,7 @@ namespace PipeOptimization
 
             var task = new TaskDefinition();
 
-            task.solve_task(steps, left_border, right_border, threshold, func01);
-
-            chart1.Series[0].
+            task.solve_task(steps, left_border, right_border, threshold, chart1);
         }
     }
 }
