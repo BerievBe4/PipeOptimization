@@ -32,6 +32,8 @@ namespace PipeOptimization
             var task = new TaskDefinition();
 
             task.solve_task(steps, left_border, right_border, threshold, func01);
+
+            chart1.Series[0].
         }
     }
 }
