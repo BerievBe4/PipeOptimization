@@ -19,6 +19,7 @@ namespace PipeOptimization
             textBox2.Text = 0.01d.ToString();
             textBox3.Text = 100d.ToString();
             textBox4.Text = 0.025d.ToString();
+            textBox5.Text = 600d.ToString();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -28,8 +29,8 @@ namespace PipeOptimization
             var left_border = Double.Parse(textBox2.Text);
             var right_border = Double.Parse(textBox3.Text);
             var threshold = Double.Parse(textBox4.Text);
-
-            var task = new TaskDefinition();
+            var alpha = Double.Parse(textBox5.Text);
+            var task = new TaskDefinition(alpha);
 
             task.solve_task(steps, left_border, right_border, threshold, chart1);
         }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PipeOptimization
@@ -72,8 +70,9 @@ namespace PipeOptimization
 
         private int n = 5000;
 
-        public TaskDefinition()
+        public TaskDefinition(double alpha)
         {
+            this.alpha = alpha;
         }
 
         private double P(double l)
@@ -82,14 +81,22 @@ namespace PipeOptimization
         }
 
         //func01 = lambda t, a: t
-        private double Func_0(double a, double t)
-        {
-            return t;
-        }
+        //private double Func_0(double a, double t)
+        //{
+        //    return t;
+        //}
+
+        //private double X7(double l)
+        //{
+        //    return 373d + 1127d * (Func_0(l / 180d, alpha));
+        //}
 
         private double X7(double l)
         {
-            return 373d + 1127d * (Func_0(l / 180d, alpha));
+            if (0 <= l && l <= 120)
+                return 373 + ((alpha - 373) * l) / 120;
+            else
+                return alpha + ((1500 - alpha) * (l - 120)) / 60;
         }
 
         private double V(double l, double[] x)
